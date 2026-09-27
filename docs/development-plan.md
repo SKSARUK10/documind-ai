@@ -1,12 +1,12 @@
 # DocuMind AI — Development Plan
 
-**Current phase: Phase 0 — Project Setup and Documentation**
+**Current phase: Phase 2 — PDF Document Processing (next)**
 
-Each phase has a single goal and a clear "done" signal. Only Phase 0 has been executed; every other phase is a plan.
+Each phase has a single goal and a clear "done" signal.
 
 ---
 
-## Phase 0 — Project setup and documentation ✅ *(current)*
+## Phase 0 — Project setup and documentation ✅
 
 **Goal:** A clean, GitHub-ready repository with structure, configuration placeholders, and documentation.
 
@@ -16,19 +16,26 @@ Each phase has a single goal and a clear "done" signal. Only Phase 0 has been ex
 - Root `README.md`, per-service READMEs, architecture doc, this plan
 - Git initialization and one initial commit
 
-**Done when:** The repo compiles nothing, runs nothing, and explains everything.
+**Done when:** The repo compiles nothing, runs nothing, and explains everything. ✅
 
 ---
 
-## Phase 1 — Python + FastAPI foundation
+## Phase 1 — Python + FastAPI foundation ✅
 
 **Goal:** A minimal, runnable FastAPI service with health check, project layout, config loading from `.env`, CORS, logging, and a pytest smoke test.
 
-**Done when:** `uvicorn app.main:app --reload` starts and `/health` returns OK; `pytest` passes.
+**Delivered:**
+- `app/main.py` application factory with CORS + structured logging
+- `app/core/config.py` — pydantic-settings reading `.env` (safe defaults, no secrets required)
+- `app/api/routes/health.py` — `GET /health`
+- `tests/test_health.py` — 3 passing tests (health, 404, CORS preflight)
+- `requirements.txt` (pinned), `pytest.ini`
+
+**Done when:** `uvicorn app.main:app --reload` starts and `/health` returns OK; `pytest` passes. ✅
 
 ---
 
-## Phase 2 — PDF document processing
+## Phase 2 — PDF document processing *(next)*
 
 **Goal:** Accept a PDF, extract text page by page, and return structured text with page numbers.
 

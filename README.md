@@ -1,9 +1,15 @@
 # DocuMind AI
 
-> **Status: Phase 0 — Project Setup / Initialization**
-> Nothing in this repository is implemented yet. Everything below describes the *planned* system.
+> **Status: Phase 1 complete — FastAPI foundation. Current work: Phase 2 (PDF processing).**
+> Implemented so far: repository structure, documentation, and a runnable FastAPI service with `/health`, `.env` config loading, CORS, and passing tests. Everything else below is **planned, not implemented**.
 
 DocuMind AI is a full-stack AI document assistant that will allow users to upload documents and ask natural-language questions about their content. The system is designed around a React frontend, a Node.js/Express backend, a Python FastAPI AI service, a RAG (Retrieval-Augmented Generation) pipeline, and FAISS vector search.
+
+### Current status
+
+- **Phase:** Phase 0 ✅, Phase 1 ✅ → **next: Phase 2**
+- **Done so far:** repository initialized · project structure · documentation · Git config · runnable FastAPI service (`GET /health`, `.env` config loading, CORS, 3 passing tests)
+- **Not implemented yet:** Authentication · PDF processing · chunking · embeddings · FAISS · LLM integration · chat · agentic workflows · MCP · Docker · deployment
 
 ---
 
@@ -42,8 +48,9 @@ DocuMind AI addresses this by combining:
 
 | Feature | Status |
 | --- | --- |
-| Project structure and documentation | ✅ Phase 0 (this phase) |
-| PDF upload and text extraction | ⬜ Planned |
+| Project structure and documentation | ✅ Phase 0 |
+| FastAPI foundation (`/health`, config, CORS, tests) | ✅ Phase 1 |
+| PDF upload and text extraction | ⬜ Planned (Phase 2) |
 | Text chunking with page tracking | ⬜ Planned |
 | Embeddings generation | ⬜ Planned |
 | FAISS vector index and similarity search | ⬜ Planned |
@@ -135,9 +142,9 @@ Each service folder contains its own `README.md` describing its intended respons
 
 | Phase | Focus | Status |
 | --- | --- | --- |
-| 0 | Project setup and documentation | ✅ **Current** |
-| 1 | Python + FastAPI foundation | ⬜ |
-| 2 | PDF document processing | ⬜ |
+| 0 | Project setup and documentation | ✅ |
+| 1 | Python + FastAPI foundation | ✅ |
+| 2 | PDF document processing | ▶ **Current** |
 | 3 | Embeddings + FAISS | ⬜ |
 | 4 | RAG + LLM | ⬜ |
 | 5 | Node.js + MongoDB | ⬜ |
@@ -173,23 +180,25 @@ CLOUDINARY_API_SECRET=
 
 ## 11. Local Development
 
-> Not runnable yet — no application code exists in Phase 0. This is the intended workflow once implementation begins.
+> The AI service runs today. Backend and frontend commands activate in Phases 5 and 7.
 
 ```bash
 # 1. Clone
 git clone <your-repo-url>
 cd documind-ai
 
-# 2. Environment
+# 2. Environment (optional — safe defaults exist; no secrets committed)
 copy .env.example .env          # Windows
 # cp .env.example .env          # macOS / Linux
-# then fill in values per service
 
-# 3. AI service (Phase 1+)
+# 3. AI service ✅ (Phase 1 — runnable now)
 cd ai-service
-# python -m venv .venv && .venv\Scripts\activate
-# pip install -r requirements.txt
-# uvicorn app.main:app --reload
+python -m venv .venv
+.venv\Scripts\activate          # Windows
+# source .venv/bin/activate     # macOS / Linux
+pip install -r requirements.txt
+uvicorn app.main:app --reload   # http://127.0.0.1:8000  (docs at /docs)
+pytest                          # smoke tests
 
 # 4. Backend (Phase 5+)
 cd ../backend
@@ -213,7 +222,9 @@ Prerequisites: Node.js (LTS), Python 3.11+, MongoDB (local or Atlas), Git.
 - **RAG quality** — a small fixed question/answer dataset used to detect retrieval regressions.
 - CI wiring is deferred to a later phase; `.github/workflows/` currently holds only a placeholder README.
 
-## 13. Deployment Plan (Planned)
+## 13. Deployment Plan (Planned — free tier only)
+
+**Constraint: the whole portfolio deployment must stay on free/free-tier services.** No AWS, Azure, GCP, Kubernetes, or paid infrastructure. Free-tier limits (cold starts, RAM, storage, bandwidth, ephemeral disks) are design inputs — see [`docs/architecture.md` §6](docs/architecture.md).
 
 | Component | Target |
 | --- | --- |

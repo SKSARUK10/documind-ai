@@ -1,6 +1,6 @@
 # DocuMind AI — Planned Architecture
 
-**Status: documentation only (Phase 0). No service is implemented yet.**
+**Status: Phase 1 complete — only the FastAPI foundation (`GET /health`, config loading, CORS) is implemented. Every other element below is planned.**
 
 ## 1. High-level flow
 
@@ -89,7 +89,7 @@ Deployment: Render. Internal only — not exposed to the public internet.
 
 - Local vector index files on disk (`faiss_index/`, git-ignored).
 - One index (or index shard) per document initially; a consolidated index is a later optimization.
-- Rebuilt from stored chunks when needed.
+- **Rebuildable, not permanent** — indexes are derived data and can be regenerated from stored chunks (required by ephemeral free-tier disks, see §6).
 
 ### 3.6 File storage
 
@@ -136,15 +136,25 @@ User ← Frontend (answer + page citations)
 - **Observability** — structured logs; retrieval/token metrics later.
 - **Testing** — pytest for AI service, jest/vitest for backend, component tests for frontend.
 
-## 6. Deployment topology (planned)
+## 6. Deployment topology (planned — free tier only)
+
+**Hard constraint: the entire portfolio deployment must run on free/free-tier services.** The architecture is not designed around AWS, Azure, GCP, Kubernetes, or any paid infrastructure, and no service may require payment for the basic deployment.
 
 | Service | Platform | Notes |
 | --- | --- | --- |
-| React frontend | Netlify | Static build |
-| Node.js backend | Render | Public entry point |
-| FastAPI AI service | Render | Private/internal |
-| MongoDB | MongoDB Atlas | M0 to start |
-| Files | Local → Cloudinary | Migrate later |
+| React frontend | Netlify Free | Static build |
+| Node.js backend | Render Free | Public entry point; cold starts on free plan |
+| FastAPI AI service | Render Free | Must tolerate sleep/cold starts and small RAM |
+| MongoDB | MongoDB Atlas Free (M0) | Storage and connection limits apply |
+| Files | Cloudinary Free (or comparable free tier) | Bandwidth/storage limits apply |
+| Secrets | Platform env vars | Never in GitHub, never in frontend code |
+
+**Free-tier limitations that shape design decisions:**
+
+- **Sleep/cold starts (Render Free)** — services spin down when idle; the first request after idle is slow. Keep request paths idempotent and avoid assuming a warm process.
+- **Ephemeral filesystem** — disk contents can vanish on redeploy/restart. **FAISS is explicitly NOT permanent storage**: it is a *rebuildable index* derived from durable data (document text/chunks in MongoDB or object storage). The system must be able to rebuild any index from source data at any time.
+- **Storage/bandwidth caps** — large uploads and heavy traffic are bounded; design for a small portfolio dataset.
+- **RAM limits** — embedding and LLM work must be API-based rather than loading large local models.
 
 ## 7. Explicitly out of scope for now
 
