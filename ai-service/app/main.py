@@ -3,7 +3,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import health
+from app.api.routes import agent, documents, health
 from app.core.config import get_settings
 
 logging.basicConfig(
@@ -30,6 +30,8 @@ def create_app() -> FastAPI:
     )
 
     application.include_router(health.router)
+    application.include_router(agent.router)
+    application.include_router(documents.router)
 
     logger.info("AI service initialized (origins=%s)", settings.cors_origins)
     return application

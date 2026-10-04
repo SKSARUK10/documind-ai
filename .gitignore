@@ -21,6 +21,7 @@ __pycache__/
 *.egg-info/
 .eggs/
 .venv/
+.venv-*/
 venv/
 env/
 ENV/
@@ -39,6 +40,8 @@ faiss_index/
 *.index
 storage/
 *.pdf
+!tests/fixtures/
+!tests/fixtures/*.pdf
 
 # --- Logs ---
 logs/

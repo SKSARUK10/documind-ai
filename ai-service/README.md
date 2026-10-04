@@ -1,6 +1,6 @@
 # AI Service (Python / FastAPI) — DocuMind AI
 
-**Status: Phase 1 complete — FastAPI foundation (health check, config, CORS). Everything else below is still planned.**
+**Status: Phase 1 complete — FastAPI foundation (health check, config, CORS) + agent route skeleton (schemas, `/agent/chat`, `/agent/tools`). No agent loop yet.**
 
 The AI/ML service. It owns everything related to turning documents into answers.
 
@@ -38,11 +38,15 @@ ai-service/
 │   ├── main.py            # app factory, CORS, logging, router mounting
 │   ├── api/
 │   │   └── routes/
-│   │       └── health.py  # GET /health
-│   └── core/
-│       └── config.py      # pydantic-settings, reads .env
+│   │       ├── health.py   # GET /health
+│   │       └── agent.py    # POST /agent/chat (501 skeleton), GET /agent/tools
+│   ├── core/
+│   │   └── config.py      # pydantic-settings, reads .env
+│   └── models/
+│       └── agent.py       # ChatRequest / ChatResponse / trace schemas
 ├── tests/
-│   └── test_health.py
+│   ├── test_health.py
+│   └── test_agent.py
 ├── .env.example
 ├── requirements.txt
 ├── pytest.ini
@@ -71,7 +75,7 @@ uvicorn app.main:app --reload     # http://127.0.0.1:8000  (docs at /docs)
 pytest                            # smoke tests
 ```
 
-**Implemented endpoints:** `GET /health` → `{"status":"ok","service":"documind-ai-service"}`.
+**Implemented endpoints:** `GET /health` → `{"status":"ok","service":"documind-ai-service"}`; skeleton `POST /agent/chat` (501 until the agent loop lands) and `GET /agent/tools` (empty registry).
 
 ## Conventions for later phases
 
