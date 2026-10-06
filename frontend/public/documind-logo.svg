@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <title>DocuMind AI</title>
+  <rect width="64" height="64" rx="16" fill="#4F46E5"/>
+  <path d="M20 10h18l10 10v30a4 4 0 0 1-4 4H20a4 4 0 0 1-4-4V14a4 4 0 0 1 4-4Z" fill="#fff"/>
+  <path d="M38 10l10 10H38V10Z" fill="#C7D2FE"/>
+  <path d="M21 17.5h12" stroke="#A5B4FC" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M25 27L39 36M39 36L25 45M25 45V27" stroke="#4F46E5" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="25" cy="27" r="3.5" fill="#4F46E5"/>
+  <circle cx="39" cy="36" r="3.5" fill="#4F46E5"/>
+  <circle cx="25" cy="45" r="3.5" fill="#4F46E5"/>
+</svg>
