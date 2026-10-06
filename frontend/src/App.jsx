@@ -1,22 +1,64 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import ChatHeader from './components/ChatHeader'
 import ChatInput from './components/ChatInput'
 import ChatMessages from './components/ChatMessages'
 import DocumentSidebar from './components/DocumentSidebar'
 import Header from './components/Header'
 import { GENERIC_ERROR_MESSAGE, sendChatMessage } from './services/api'
-import { TEMP_DOCUMENTS } from './services/documents'
+import { getDocuments, uploadDocument } from './services/documents'
 
 function App() {
   const [messages, setMessages] = useState([])
   const [isThinking, setIsThinking] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const [selectedDocumentId, setSelectedDocumentId] = useState(
-    TEMP_DOCUMENTS[0]?.document_id ?? null,
-  )
+
+  const [documents, setDocuments] = useState([])
+  const [isLoadingDocuments, setIsLoadingDocuments] = useState(true)
+  const [selectedDocumentId, setSelectedDocumentId] = useState(null)
+
+  const [isUploading, setIsUploading] = useState(false)
+
+  useEffect(() => {
+    loadDocuments()
+  }, [])
+
+  async function loadDocuments() {
+    try {
+      const data = await getDocuments()
+
+      setDocuments(data)
+
+      if (data.length > 0 && !selectedDocumentId) {
+        setSelectedDocumentId(data[0].document_id)
+      }
+    } catch (error) {
+      console.error('Failed to load documents:', error)
+    } finally {
+      setIsLoadingDocuments(false)
+    }
+  }
+
+  async function handleUpload(file) {
+    if (isUploading) return
+
+    setIsUploading(true)
+
+    try {
+      const uploadedDocument = await uploadDocument(file)
+
+      await loadDocuments()
+
+      setSelectedDocumentId(uploadedDocument.document_id)
+    } catch (error) {
+      console.error('Document upload failed:', error)
+      alert('Failed to upload document')
+    } finally {
+      setIsUploading(false)
+    }
+  }
 
   const selectedDocument =
-    TEMP_DOCUMENTS.find(
+    documents.find(
       (document) => document.document_id === selectedDocumentId,
     ) ?? null
 
@@ -25,7 +67,11 @@ function App() {
 
     const nextMessages = [
       ...messages,
-      { id: crypto.randomUUID(), role: 'user', content: text },
+      {
+        id: crypto.randomUUID(),
+        role: 'user',
+        content: text,
+      },
     ]
 
     setMessages(nextMessages)
@@ -74,7 +120,9 @@ function App() {
 
   return (
     <div className="flex h-dvh flex-col bg-slate-50 text-slate-800">
-      <Header onToggleSidebar={() => setIsSidebarOpen((open) => !open)} />
+      <Header
+        onToggleSidebar={() => setIsSidebarOpen((open) => !open)}
+      />
 
       <div className="flex min-h-0 flex-1">
         {isSidebarOpen && (
@@ -87,11 +135,13 @@ function App() {
         )}
 
         <DocumentSidebar
-          documents={TEMP_DOCUMENTS}
+          documents={documents}
           selectedDocumentId={selectedDocumentId}
           isOpen={isSidebarOpen}
           onSelect={handleSelectDocument}
           onClose={() => setIsSidebarOpen(false)}
+          onUpload={handleUpload}
+          isUploading={isUploading}
         />
 
         <main className="flex min-w-0 flex-1 flex-col bg-white md:border-l md:border-slate-200">
@@ -99,8 +149,16 @@ function App() {
             selectedDocument={selectedDocument}
             isThinking={isThinking}
           />
-          <ChatMessages messages={messages} isThinking={isThinking} />
-          <ChatInput onSend={handleSend} disabled={isThinking} />
+
+          <ChatMessages
+            messages={messages}
+            isThinking={isThinking}
+          />
+
+          <ChatInput
+            onSend={handleSend}
+            disabled={isThinking}
+          />
         </main>
       </div>
     </div>

@@ -1,5 +1,10 @@
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from pathlib import Path
 
+from fastapi import APIRouter, File, HTTPException, UploadFile
+from app.core.config import get_settings
+from app.services.document_metadata_service import (
+    list_document_metadata,
+)
 from app.models.document import DocumentResponse
 from app.services.document_ingestion_service import ingest_document
 from app.services.document_storage_service import save_document
@@ -43,3 +48,25 @@ def upload_document(
         document_id=document_id,
         document_name=file.filename,
     )
+
+@router.get(
+    "",
+    response_model=list[DocumentResponse],
+)
+def get_documents() -> list[DocumentResponse]:
+
+    settings = get_settings()
+
+    vector_stores_path = (
+        Path(settings.storage_dir)
+        / "vector_stores"
+    )
+
+    documents = list_document_metadata(
+        vector_stores_path,
+    )
+
+    return [
+        DocumentResponse(**document)
+        for document in documents
+    ]
