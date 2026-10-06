@@ -1,4 +1,5 @@
 const express = require("express");
+const multer = require("multer");
 
 const {
     getAllDocuments,
@@ -9,11 +10,37 @@ const { upload } = require("../middleware/documentUpload");
 
 const router = express.Router();
 
+const uploadFile = upload.single("file");
+
+function handleUpload(req, res, next) {
+    uploadFile(req, res, (error) => {
+        if (!error) {
+            return next();
+        }
+
+        if (
+            error instanceof multer.MulterError &&
+            error.code === "LIMIT_FILE_SIZE"
+        ) {
+            return res.status(413).json({
+                message: "File is too large. Maximum size is 10 MB.",
+            });
+        }
+
+        const message =
+            error.message === "Only PDF files are allowed"
+                ? error.message
+                : "Invalid upload request.";
+
+        return res.status(400).json({ message });
+    });
+}
+
 router.get("/", getAllDocuments);
 
 router.post(
     "/upload",
-    upload.single("file"),
+    handleUpload,
     uploadDocument
 );
 

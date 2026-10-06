@@ -7,6 +7,9 @@ from langchain_core.embeddings import Embeddings
 from app.core.config import get_settings
 
 
+EMBEDDING_BATCH_SIZE = 100
+
+
 class OpenAIEmbeddingModel(Embeddings):
 
     def __init__(self):
@@ -24,15 +27,30 @@ class OpenAIEmbeddingModel(Embeddings):
         texts: Sequence[str],
     ) -> list[list[float]]:
 
-        response = self.client.embeddings.create(
-            model=self.model,
-            input=list(texts),
-        )
+        if not texts:
+            return []
 
-        return [
-            item.embedding
-            for item in response.data
-        ]
+        embeddings: list[list[float]] = []
+
+        for start in range(0, len(texts), EMBEDDING_BATCH_SIZE):
+            batch = list(texts[start : start + EMBEDDING_BATCH_SIZE])
+
+            response = self.client.embeddings.create(
+                model=self.model,
+                input=batch,
+            )
+
+            batch_embeddings = [
+                entry.embedding
+                for entry in sorted(
+                    response.data,
+                    key=lambda entry: entry.index,
+                )
+            ]
+
+            embeddings.extend(batch_embeddings)
+
+        return embeddings
 
     def embed_query(
         self,

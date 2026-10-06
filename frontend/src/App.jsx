@@ -13,45 +13,59 @@ function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   const [documents, setDocuments] = useState([])
-  const [isLoadingDocuments, setIsLoadingDocuments] = useState(true)
+  const [documentsError, setDocumentsError] = useState(null)
   const [selectedDocumentId, setSelectedDocumentId] = useState(null)
 
   const [isUploading, setIsUploading] = useState(false)
-
-  useEffect(() => {
-    loadDocuments()
-  }, [])
+  const [uploadError, setUploadError] = useState(null)
 
   async function loadDocuments() {
     try {
       const data = await getDocuments()
 
       setDocuments(data)
+      setDocumentsError(null)
 
-      if (data.length > 0 && !selectedDocumentId) {
-        setSelectedDocumentId(data[0].document_id)
+      if (data.length > 0) {
+        setSelectedDocumentId(
+          (currentId) => currentId ?? data[0].document_id,
+        )
       }
+
+      return true
     } catch (error) {
       console.error('Failed to load documents:', error)
-    } finally {
-      setIsLoadingDocuments(false)
+      setDocumentsError('Failed to load documents')
+
+      return false
     }
   }
+
+  // Fetch the document list once on mount; handleUpload refreshes it
+  // explicitly after a successful upload. setState runs only after the
+  // network promise resolves, so this cannot cascade renders.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadDocuments()
+  }, [])
 
   async function handleUpload(file) {
     if (isUploading) return
 
     setIsUploading(true)
+    setUploadError(null)
 
     try {
       const uploadedDocument = await uploadDocument(file)
 
-      await loadDocuments()
+      const reloadSucceeded = await loadDocuments()
 
-      setSelectedDocumentId(uploadedDocument.document_id)
+      if (reloadSucceeded) {
+        setSelectedDocumentId(uploadedDocument.document_id)
+      }
     } catch (error) {
       console.error('Document upload failed:', error)
-      alert('Failed to upload document')
+      setUploadError('Failed to upload document')
     } finally {
       setIsUploading(false)
     }
@@ -136,12 +150,14 @@ function App() {
 
         <DocumentSidebar
           documents={documents}
+          documentsError={documentsError}
           selectedDocumentId={selectedDocumentId}
           isOpen={isSidebarOpen}
           onSelect={handleSelectDocument}
           onClose={() => setIsSidebarOpen(false)}
           onUpload={handleUpload}
           isUploading={isUploading}
+          uploadError={uploadError}
         />
 
         <main className="flex min-w-0 flex-1 flex-col bg-white md:border-l md:border-slate-200">

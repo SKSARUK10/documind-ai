@@ -7,7 +7,19 @@ const documentRoutes = require("./routes/document.routes")
 
 const app = express()
 
-app.use(cors())
+app.disable("x-powered-by")
+
+const allowedOrigins = (
+    process.env.CORS_ORIGINS ||
+    "http://localhost:5173,http://localhost:3000,http://localhost:4000"
+)
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+
+app.use(cors({
+    origin: allowedOrigins,
+}))
 app.use(express.json())
 
 app.use("/", healthRoutes)

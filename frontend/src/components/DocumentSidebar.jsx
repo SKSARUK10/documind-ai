@@ -3,12 +3,14 @@ import { CloseIcon, FileIcon, PlusIcon } from './icons'
 
 function DocumentSidebar({
   documents,
+  documentsError,
   selectedDocumentId,
   isOpen,
   onSelect,
   onClose,
   onUpload,
   isUploading,
+  uploadError,
 }) {
   const fileInputRef = useRef(null)
 
@@ -70,10 +72,22 @@ function DocumentSidebar({
         <p className="mt-1.5 text-center text-[11px] text-slate-400">
           PDF files only
         </p>
+
+        {uploadError && (
+          <p className="mt-2 text-center text-xs font-medium text-red-600">
+            {uploadError}
+          </p>
+        )}
       </div>
 
       <ul className="flex-1 space-y-1 overflow-y-auto px-2 pb-4">
-        {documents.length === 0 ? (
+        {documentsError && (
+          <li className="px-2 py-3 text-center text-xs font-medium text-red-600">
+            {documentsError}
+          </li>
+        )}
+
+        {!documentsError && documents.length === 0 ? (
           <li className="px-2 py-8 text-center text-sm text-slate-400">
             No documents yet
           </li>
