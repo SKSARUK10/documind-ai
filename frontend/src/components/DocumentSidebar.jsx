@@ -1,12 +1,33 @@
+import { useRef } from 'react'
 import { CloseIcon, FileIcon, PlusIcon } from './icons'
 
 function DocumentSidebar({
   documents,
+  documentsError,
   selectedDocumentId,
   isOpen,
   onSelect,
   onClose,
+  onUpload,
+  isUploading,
+  uploadError,
 }) {
+  const fileInputRef = useRef(null)
+
+  function handleUploadClick() {
+    fileInputRef.current?.click()
+  }
+
+  function handleFileChange(event) {
+    const file = event.target.files?.[0]
+
+    if (!file) return
+
+    onUpload(file)
+
+    event.target.value = ''
+  }
+
   return (
     <aside
       className={`fixed top-14 right-auto bottom-0 left-0 z-40 flex w-72 flex-col border-r border-slate-200 bg-white transition-transform md:static md:z-auto md:translate-x-0 ${
@@ -14,7 +35,10 @@ function DocumentSidebar({
       }`}
     >
       <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-        <h2 className="text-sm font-semibold text-slate-900">Documents</h2>
+        <h2 className="text-sm font-semibold text-slate-900">
+          Documents
+        </h2>
+
         <button
           type="button"
           onClick={onClose}
@@ -26,28 +50,51 @@ function DocumentSidebar({
       </div>
 
       <div className="px-4 py-3">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="application/pdf"
+          onChange={handleFileChange}
+          className="hidden"
+        />
+
         <button
           type="button"
-          disabled
-          title="Upload will be available soon"
+          onClick={handleUploadClick}
+          disabled={isUploading}
           className="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <PlusIcon className="h-4 w-4" />
-          Upload document
+
+          {isUploading ? 'Uploading...' : 'Upload document'}
         </button>
+
         <p className="mt-1.5 text-center text-[11px] text-slate-400">
-          Coming soon
+          PDF files only
         </p>
+
+        {uploadError && (
+          <p className="mt-2 text-center text-xs font-medium text-red-600">
+            {uploadError}
+          </p>
+        )}
       </div>
 
       <ul className="flex-1 space-y-1 overflow-y-auto px-2 pb-4">
-        {documents.length === 0 ? (
+        {documentsError && (
+          <li className="px-2 py-3 text-center text-xs font-medium text-red-600">
+            {documentsError}
+          </li>
+        )}
+
+        {!documentsError && documents.length === 0 ? (
           <li className="px-2 py-8 text-center text-sm text-slate-400">
             No documents yet
           </li>
         ) : (
           documents.map((document) => {
-            const isSelected = document.document_id === selectedDocumentId
+            const isSelected =
+              document.document_id === selectedDocumentId
 
             return (
               <li key={document.document_id}>
@@ -62,7 +109,9 @@ function DocumentSidebar({
                   }`}
                 >
                   <FileIcon className="h-4 w-4 shrink-0" />
-                  <span className="truncate">{document.document_name}</span>
+                  <span className="truncate">
+                    {document.document_name}
+                  </span>
                 </button>
               </li>
             )

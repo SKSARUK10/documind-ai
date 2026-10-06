@@ -1,8 +1,35 @@
-// Temporary development document.
-// Replace with the real document list API when it is exposed by the backend.
-export const TEMP_DOCUMENTS = [
-  {
-    document_id: '586fc014-0f61-41db-8f89-4b5b5f310b63',
-    document_name: 'AgenticAI-course-structure.pdf',
-  },
-]
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'
+
+export async function getDocuments() {
+  const response = await fetch(`${API_BASE_URL}/documents`)
+
+  if (!response.ok) {
+    throw new Error('Failed to load documents')
+  }
+
+  const data = await response.json()
+
+  if (!Array.isArray(data)) {
+    throw new Error('Failed to load documents')
+  }
+
+  return data
+}
+
+export async function uploadDocument(file) {
+  const formData = new FormData()
+
+  formData.append('file', file)
+
+  const response = await fetch(`${API_BASE_URL}/documents/upload`, {
+    method: 'POST',
+    body: formData,
+  })
+
+  if (!response.ok) {
+    throw new Error('Failed to upload document')
+  }
+
+  return response.json()
+}

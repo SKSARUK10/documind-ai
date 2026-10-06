@@ -29,3 +29,24 @@ def load_document_metadata(
 
     with metadata_path.open("r", encoding="utf-8") as file:
         return json.load(file)
+
+
+def list_document_metadata(
+    vector_stores_path: Path,
+) -> list[dict]:
+
+    if not vector_stores_path.exists():
+        return []
+
+    documents = []
+
+    for document_path in vector_stores_path.iterdir():
+        if not document_path.is_dir():
+            continue
+
+        metadata = load_document_metadata(document_path)
+
+        if metadata:
+            documents.append(metadata)
+
+    return documents
