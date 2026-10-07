@@ -46,9 +46,9 @@ function ChatInput({ onSend, disabled }) {
   }
 
   return (
-    <div className="shrink-0 border-t border-slate-200 bg-white px-4 py-4 sm:px-6">
+    <div className="shrink-0 border-t border-slate-200 bg-white px-4 py-4 dark:border-slate-700 dark:bg-slate-900 sm:px-6">
       <form onSubmit={handleSubmit} className="mx-auto max-w-3xl">
-        <div className="flex items-end gap-2 rounded-2xl border border-slate-300 bg-white p-2 shadow-sm transition focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-100">
+        <div className="flex items-end gap-2 rounded-2xl border border-slate-300 bg-white p-2 shadow-sm transition focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-100 dark:border-slate-600 dark:bg-slate-900 dark:focus-within:ring-indigo-500/30">
           <label htmlFor="chat-input" className="sr-only">
             Ask about your document
           </label>
@@ -61,19 +61,19 @@ function ChatInput({ onSend, disabled }) {
             onKeyDown={handleKeyDown}
             disabled={disabled}
             placeholder="Ask about your document..."
-            className="max-h-44 min-h-9 flex-1 resize-none bg-transparent px-2 py-1.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none disabled:cursor-not-allowed"
+            className="max-h-44 min-h-9 flex-1 resize-none bg-transparent px-2 py-1.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none disabled:cursor-not-allowed dark:text-slate-100 dark:placeholder:text-slate-500"
           />
           <button
             type="submit"
             disabled={disabled || !text.trim()}
             aria-label="Send message"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white transition hover:bg-indigo-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white transition hover:bg-indigo-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:focus-visible:outline-indigo-400 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <SendIcon className="h-4 w-4" />
           </button>
         </div>
 
-        <p className="mt-1.5 text-center text-[11px] text-slate-400">
+        <p className="mt-1.5 text-center text-[11px] text-slate-400 dark:text-slate-500">
           Enter to send · Shift + Enter for a new line
         </p>
       </form>

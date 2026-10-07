@@ -133,7 +133,7 @@ function App() {
   }
 
   return (
-    <div className="flex h-dvh flex-col bg-slate-50 text-slate-800">
+    <div className="flex h-dvh flex-col bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100">
       <Header
         onToggleSidebar={() => setIsSidebarOpen((open) => !open)}
       />
@@ -144,7 +144,7 @@ function App() {
             type="button"
             aria-label="Close document sidebar"
             onClick={() => setIsSidebarOpen(false)}
-            className="fixed top-14 right-0 bottom-0 left-0 z-30 bg-slate-900/40 md:hidden"
+            className="fixed top-14 right-0 bottom-0 left-0 z-30 bg-slate-900/40 dark:bg-black/60 md:hidden"
           />
         )}
 
@@ -160,7 +160,7 @@ function App() {
           uploadError={uploadError}
         />
 
-        <main className="flex min-w-0 flex-1 flex-col bg-white md:border-l md:border-slate-200">
+        <main className="flex min-w-0 flex-1 flex-col bg-white dark:border-slate-700 dark:bg-slate-900 md:border-l md:border-slate-200">
           <ChatHeader
             selectedDocument={selectedDocument}
             isThinking={isThinking}
