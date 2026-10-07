@@ -27,8 +27,8 @@ function ChatMessage({ message }) {
         <div
           className={`rounded-2xl rounded-tl-md px-4 py-3 text-sm leading-6 whitespace-pre-wrap ${
             message.error
-              ? 'border border-red-200 bg-red-50 text-red-700'
-              : 'border border-slate-200 bg-white text-slate-700'
+              ? 'border border-red-200 bg-red-50 text-red-700 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-300'
+              : 'border border-slate-200 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200'
           }`}
         >
           {message.error && (
