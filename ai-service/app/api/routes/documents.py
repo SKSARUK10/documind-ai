@@ -8,6 +8,10 @@ from app.services.document_metadata_service import (
     list_document_metadata,
 )
 from app.models.document import DocumentResponse
+from app.services.document_file_type_service import (
+    UnsupportedFileTypeError,
+    resolve_supported_extension,
+)
 from app.services.document_ingestion_service import (
     DocumentProcessingError,
     ingest_document,
@@ -60,13 +64,18 @@ def upload_document(
             detail="File name is required.",
         )
 
-    if not file.filename.lower().endswith(".pdf"):
+    try:
+        extension = resolve_supported_extension(
+            file.filename,
+            file.content_type,
+        )
+    except UnsupportedFileTypeError as exc:
         raise HTTPException(
             status_code=400,
-            detail="Only PDF files are supported.",
-        )
+            detail=str(exc),
+        ) from None
 
-    document_id, file_path = save_document(file)
+    document_id, file_path = save_document(file, extension)
 
     try:
         ingest_document(

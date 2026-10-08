@@ -7,11 +7,15 @@ def save_document_metadata(
     vector_store_path: Path,
     document_id: str,
     document_name: str,
+    file_type: str | None = None,
 ) -> None:
     metadata = {
         "document_id": document_id,
         "document_name": document_name,
     }
+
+    if file_type:
+        metadata["file_type"] = file_type
 
     metadata_path = vector_store_path / "metadata.json"
 

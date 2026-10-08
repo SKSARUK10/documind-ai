@@ -29,6 +29,11 @@ def create_vector_store(
             "document_id": document_id,
             "page_number": chunk["page_number"],
             "chunk_index": index,
+            **(
+                {"sheet_name": chunk["sheet_name"]}
+                if "sheet_name" in chunk
+                else {}
+            ),
         }
         for index, chunk in enumerate(chunks)
     ]

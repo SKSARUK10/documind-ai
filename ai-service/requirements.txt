@@ -5,6 +5,11 @@ fastapi==0.141.1
 uvicorn[standard]==0.54.0
 pydantic-settings==2.15.0
 
+# document ingestion — CSV / Excel text extraction
+pandas==3.0.6
+openpyxl==3.1.5
+xlrd==2.0.2
+
 # testing
 pytest==9.1.1
 httpx2==2.13.1

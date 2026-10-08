@@ -53,7 +53,7 @@ function DocumentSidebar({
         <input
           ref={fileInputRef}
           type="file"
-          accept="application/pdf"
+          accept="application/pdf,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
           onChange={handleFileChange}
           className="hidden"
         />
@@ -70,7 +70,7 @@ function DocumentSidebar({
         </button>
 
         <p className="mt-1.5 text-center text-[11px] text-slate-400 dark:text-slate-500">
-          PDF files only
+          PDF, CSV, XLSX, XLS only
         </p>
 
         {uploadError && (

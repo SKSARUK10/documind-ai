@@ -21,11 +21,14 @@ def chunk_pages(
 
         for chunk in page_chunks:
 
-            chunks.append(
-                {
-                    "page_number": page_number,
-                    "text": chunk,
-                }
-            )
+            chunk_entry = {
+                "page_number": page_number,
+                "text": chunk,
+            }
+
+            if "sheet_name" in page:
+                chunk_entry["sheet_name"] = page["sheet_name"]
+
+            chunks.append(chunk_entry)
 
     return chunks

@@ -47,12 +47,12 @@ def write_blank_pdf(path: Path) -> Path:
     return path
 
 
-def upload(pdf_path: Path):
+def upload(pdf_path: Path, content_type: str = "application/pdf"):
     with pdf_path.open("rb") as file:
         return client.post(
             "/documents/upload",
             files={
-                "file": (pdf_path.name, file, "application/pdf"),
+                "file": (pdf_path.name, file, content_type),
             },
         )
 
@@ -194,7 +194,124 @@ def test_non_pdf_upload_is_rejected_before_saving(
 
     assert response.status_code == 400
     assert response.json()["detail"] == (
-        "Only PDF files are supported."
+        "Only PDF, CSV, XLSX, and XLS files are allowed."
+    )
+
+    assert_no_orphans(storage_dir)
+
+
+def test_mismatched_mime_type_is_rejected_before_saving(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+
+    storage_dir = configure_storage(tmp_path, monkeypatch)
+
+    pdf_file = Path("tests/fixtures/sample.pdf")
+
+    response = upload(pdf_file, content_type="text/plain")
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == (
+        "Only PDF, CSV, XLSX, and XLS files are allowed."
+    )
+
+    assert_no_orphans(storage_dir)
+
+
+def test_csv_upload_keeps_original_extension(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+
+    storage_dir = configure_storage(tmp_path, monkeypatch)
+
+    monkeypatch.setattr(
+        documents_route,
+        "ingest_document",
+        lambda document_id, file_path, document_name: None,
+    )
+
+    csv_file = tmp_path / "employees.csv"
+    csv_file.write_text(
+        "name,salary\nAlice,80000\n",
+        encoding="utf-8",
+    )
+
+    response = upload(csv_file, content_type="text/csv")
+
+    assert response.status_code == 200
+    assert response.json()["document_name"] == "employees.csv"
+
+    saved_documents = list(
+        (storage_dir / "documents").iterdir()
+    )
+    assert len(saved_documents) == 1
+    assert saved_documents[0].suffix == ".csv"
+
+
+def test_xlsx_upload_keeps_original_extension(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+
+    storage_dir = configure_storage(tmp_path, monkeypatch)
+
+    monkeypatch.setattr(
+        documents_route,
+        "ingest_document",
+        lambda document_id, file_path, document_name: None,
+    )
+
+    workbook_file = tmp_path / "sales.xlsx"
+    workbook_file.write_bytes(b"placeholder workbook bytes")
+
+    response = upload(
+        workbook_file,
+        content_type=(
+            "application/vnd.openxmlformats-officedocument"
+            ".spreadsheetml.sheet"
+        ),
+    )
+
+    assert response.status_code == 200
+    assert response.json()["document_name"] == "sales.xlsx"
+
+    saved_documents = list(
+        (storage_dir / "documents").iterdir()
+    )
+    assert len(saved_documents) == 1
+    assert saved_documents[0].suffix == ".xlsx"
+
+
+def test_failed_csv_ingestion_cleans_up(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+
+    storage_dir = configure_storage(tmp_path, monkeypatch)
+
+    def fail_ingestion(
+        document_id: str,
+        file_path: Path,
+        document_name: str,
+    ) -> None:
+        raise RuntimeError("embedding provider exploded")
+
+    monkeypatch.setattr(
+        documents_route,
+        "ingest_document",
+        fail_ingestion,
+    )
+
+    csv_file = tmp_path / "broken.csv"
+    csv_file.write_text("name,salary\nAlice,80000\n", encoding="utf-8")
+
+    response = upload(csv_file, content_type="text/csv")
+
+    assert response.status_code == 500
+    assert "embedding provider exploded" not in (
+        response.json()["detail"]
     )
 
     assert_no_orphans(storage_dir)
