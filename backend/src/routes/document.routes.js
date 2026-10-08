@@ -6,7 +6,10 @@ const {
     uploadDocument,
 } = require("../controllers/document.controller");
 
-const { upload } = require("../middleware/documentUpload");
+const {
+    upload,
+    UNSUPPORTED_FILE_MESSAGE,
+} = require("../middleware/documentUpload");
 
 const router = express.Router();
 
@@ -28,7 +31,7 @@ function handleUpload(req, res, next) {
         }
 
         const message =
-            error.message === "Only PDF files are allowed"
+            error.message === UNSUPPORTED_FILE_MESSAGE
                 ? error.message
                 : "Invalid upload request.";
 

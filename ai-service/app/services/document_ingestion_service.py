@@ -1,11 +1,12 @@
 
 from pathlib import Path
 
-from pypdf.errors import PyPdfError
-
 from app.core.config import get_settings
 from app.services.chunking_service import chunk_pages
-from app.services.pdf_service import extract_pages
+from app.services.text_extraction_service import (
+    TextExtractionError,
+    extract_pages_for_file,
+)
 from app.services.document_metadata_service import save_document_metadata
 from app.services.vector_store_service import (
     create_vector_store,
@@ -14,7 +15,7 @@ from app.services.vector_store_service import (
 
 
 class DocumentProcessingError(Exception):
-    """The uploaded PDF cannot be converted into a vector store."""
+    """The uploaded document cannot be converted into a vector store."""
 
 
 def ingest_document(
@@ -23,13 +24,17 @@ def ingest_document(
     document_name: str,
 ) -> None:
 
+    extension = file_path.suffix.lower()
+
     try:
-        pages = extract_pages(file_path)
-    except PyPdfError as exc:
+        pages = extract_pages_for_file(
+            file_path,
+            extension,
+        )
+    except TextExtractionError as exc:
         raise DocumentProcessingError(
-            "The PDF file could not be read. "
-            "It may be corrupt or password-protected.",
-        ) from exc
+            str(exc),
+        ) from None
 
     chunks = chunk_pages(pages)
 
@@ -41,7 +46,7 @@ def ingest_document(
 
     if not chunks:
         raise DocumentProcessingError(
-            "The PDF does not contain any readable text.",
+            "The uploaded document does not contain any readable text.",
         )
 
     vector_store = create_vector_store(chunks, document_id)
@@ -68,4 +73,5 @@ def ingest_document(
         vector_store_path,
         document_id,
         document_name,
+        file_type=extension.lstrip("."),
     )
