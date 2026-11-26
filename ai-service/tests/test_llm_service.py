@@ -1,19 +1,21 @@
 from unittest.mock import patch
 
-from app.services.llm_service import create_llm, generate_answer
+from app.core.config import get_settings
+from app.services.llm_service import (
+    OpenAIChatModel,
+    create_llm,
+    generate_answer,
+)
 
 
 def test_create_llm():
-    with patch("app.services.llm_service.ChatOpenAI") as mock_llm:
-        create_llm()
+    with patch("app.services.llm_service.OpenAI"), patch(
+        "app.services.llm_service.AsyncOpenAI",
+    ):
+        llm = create_llm()
 
-        mock_llm.assert_called_once()
-
-        kwargs = mock_llm.call_args.kwargs
-
-        assert "api_key" in kwargs
-        assert "model" in kwargs
-        assert "base_url" in kwargs
+    assert isinstance(llm, OpenAIChatModel)
+    assert llm.model == get_settings().llm_model
 
 
 def test_generate_answer():
